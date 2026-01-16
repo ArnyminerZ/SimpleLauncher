@@ -9,4 +9,11 @@ class AppInfo(
     val intent: Intent,
     val appIconProvider: () -> Drawable,
     val launchIconProvider: () -> Drawable,
-)
+) {
+    fun toAppInfoSimple(): AppInfoSimple {
+        return AppInfoSimple(
+            appName = appName,
+            packageName = packageName,
+        )
+    }
+}

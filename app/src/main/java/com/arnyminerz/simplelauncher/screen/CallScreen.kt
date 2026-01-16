@@ -5,10 +5,12 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -41,7 +43,9 @@ import com.arnyminerz.simplelauncher.data.AppInfo
 import com.arnyminerz.simplelauncher.data.Contact
 import com.arnyminerz.simplelauncher.icons.Call
 import com.arnyminerz.simplelauncher.icons.Close
+import com.arnyminerz.simplelauncher.icons.ContactPhone
 import com.arnyminerz.simplelauncher.icons.CrisisAlert
+import com.arnyminerz.simplelauncher.icons.Face
 import com.arnyminerz.simplelauncher.icons.MaterialSymbols
 import com.arnyminerz.simplelauncher.toImageBitmap
 import com.arnyminerz.simplelauncher.ui.ActionRow
@@ -52,6 +56,7 @@ fun CallScreen(
     contacts: List<Contact>,
     password: String,
     onSettingsRequest: () -> Unit,
+    onAddressBookRequest: () -> Unit,
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
@@ -142,11 +147,13 @@ fun CallScreen(
                     }
                 }
 
-                for (contact in contacts.filter { it.starred }) {
+                val contact = if (phone.length < 3) null
+                else contacts.firstOrNull { it.phone.contains(phone) }
+                if (contact != null) {
                     ActionRow(
-                        icon = MaterialSymbols.CrisisAlert,
+                        icon = MaterialSymbols.Face,
                         text = contact.name,
-                        color = Color(0xff4285f4),
+                        color = Color(0xffb18f0e),
                     ) {
                         val intent = Intent(Intent.ACTION_CALL)
                             .setData("tel:${contact.phone}".toUri())
@@ -154,6 +161,13 @@ fun CallScreen(
                     }
                 }
             }
+
+            ActionRow(
+                icon = MaterialSymbols.ContactPhone,
+                text = "Address Book",
+                color = Color(0xff4285f4),
+                onClick = onAddressBookRequest,
+            )
 
             ActionRow(
                 icon = MaterialSymbols.Close,

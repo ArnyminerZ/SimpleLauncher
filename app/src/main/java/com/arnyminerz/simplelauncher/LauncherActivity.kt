@@ -6,13 +6,15 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.provider.ContactsContract
 import android.provider.ContactsContract.CommonDataKinds.Phone
 import android.view.WindowManager.LayoutParams.FLAG_SHOW_WALLPAPER
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.togetherWith
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -21,6 +23,9 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation3.runtime.NavEntry
@@ -28,6 +33,7 @@ import androidx.navigation3.ui.NavDisplay
 import com.arnyminerz.simplelauncher.data.AppInfo
 import com.arnyminerz.simplelauncher.data.Contact
 import com.arnyminerz.simplelauncher.nav.Destination
+import com.arnyminerz.simplelauncher.screen.AddressBookScreen
 import com.arnyminerz.simplelauncher.screen.CallScreen
 import com.arnyminerz.simplelauncher.screen.LauncherScreen
 import com.arnyminerz.simplelauncher.screen.SettingsScreen
@@ -39,6 +45,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -57,7 +64,15 @@ class LauncherActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Show Wallpaper as background
         window.addFlags(FLAG_SHOW_WALLPAPER)
+
+        // Hide status and navigation bars
+        WindowCompat.getInsetsController(window, window.decorView).apply {
+            hide(WindowInsetsCompat.Type.statusBars())
+            hide(WindowInsetsCompat.Type.navigationBars())
+            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
 
         setContent {
             MaterialTheme {
@@ -87,6 +102,9 @@ class LauncherActivity : AppCompatActivity() {
                 NavDisplay(
                     backStack = backStack,
                     onBack = { backStack.removeLastOrNull() },
+                    transitionSpec = { EnterTransition.None togetherWith ExitTransition.None },
+                    popTransitionSpec = { EnterTransition.None togetherWith ExitTransition.None },
+                    predictivePopTransitionSpec = { EnterTransition.None togetherWith ExitTransition.None },
                     entryProvider = { key ->
                         when (key) {
                             is Destination.Launcher -> {
@@ -112,6 +130,18 @@ class LauncherActivity : AppCompatActivity() {
                                         onSettingsRequest = {
                                             backStack.add(Destination.Settings)
                                         },
+                                        onAddressBookRequest = {
+                                            backStack.add(Destination.AddressBook)
+                                        },
+                                        onBack = { backStack.removeLastOrNull() }
+                                    )
+                                }
+                            }
+
+                            is Destination.AddressBook -> {
+                                NavEntry(key) {
+                                    AddressBookScreen(
+                                        contacts = contacts,
                                         onBack = { backStack.removeLastOrNull() }
                                     )
                                 }
@@ -142,6 +172,7 @@ class LauncherActivity : AppCompatActivity() {
         super.onResume()
         requestRuntimePermissions()
         model.loadContacts()
+        model.loadAppsList()
     }
 
     private fun requestRuntimePermissions() {
@@ -170,11 +201,9 @@ class LauncherActivity : AppCompatActivity() {
         val password = settingsManager.passwordFlow
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
-        val allApps: Flow<List<AppInfo>> = flow {
-            val apps = getInstalledApps()
-                .sortedBy { it.appName }
-            emit(apps)
-        }
+        val allApps = settingsManager.appsListFlow
+            .map { list -> list.mapNotNull { it.toAppInfo(context) } }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
         private val _contacts = MutableStateFlow(emptyList<Contact>())
         val contacts: StateFlow<List<Contact>> get() = _contacts.asStateFlow()
@@ -186,6 +215,15 @@ class LauncherActivity : AppCompatActivity() {
                 emptyList()
             } else {
                 apps.filter { it.packageName in packageNames }
+            }
+        }
+
+        fun loadAppsList() {
+            viewModelScope.launch {
+                val apps = getInstalledApps()
+                    .sortedBy { it.appName }
+                    .map { it.toAppInfoSimple() }
+                settingsManager.setAppsList(apps)
             }
         }
 

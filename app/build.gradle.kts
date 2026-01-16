@@ -44,9 +44,11 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.viewModel.ktx)
 
+    implementation(libs.coil.compose)
+
     implementation(libs.datastore)
 
-    implementation(libs.kotlinx.serialization.core)
+    implementation(libs.kotlinx.serialization.json)
 
     implementation(libs.bundles.navigation3)
 

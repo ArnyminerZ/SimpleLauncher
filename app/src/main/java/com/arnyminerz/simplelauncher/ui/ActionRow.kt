@@ -14,17 +14,34 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.text
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun ActionRow(icon: ImageVector, text: String, color: Color, contentDescription: String? = text, onClick: () -> Unit) {
+fun ActionRow(
+    icon: ImageVector,
+    text: String,
+    color: Color,
+    contentDescription: String? = text,
+    onClick: () -> Unit,
+) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 12.dp)
-            .clickable(onClick = onClick),
+            .semantics {
+                this.text = AnnotatedString(text)
+                contentDescription?.let { this.contentDescription = it }
+                this.role = Role.Button
+            }
+            .clickable(onClickLabel = text, onClick = onClick),
         color = color,
         shape = RoundedCornerShape(16.dp)
     ) {
