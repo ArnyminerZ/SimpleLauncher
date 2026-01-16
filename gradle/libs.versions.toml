@@ -1,0 +1,48 @@
+[versions]
+agp = "9.0.0"
+appcompat = "1.7.1"
+composeBom = "2026.01.00"
+coreKtx = "1.17.0"
+datastore = "1.2.0"
+kotlin = "2.3.0"
+kotlinxSerializationCore = "1.9.0"
+nav3Core = "1.0.0"
+viewmodel = "2.10.0"
+viewmodel-nav3 = "2.10.0"
+
+[libraries]
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3Core" }
+androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3Core" }
+androidx-viewModel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "viewmodel" }
+androidx-viewModel-navigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "viewmodel-nav3" }
+compose-activity = { module = "androidx.activity:activity-compose" }
+compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
+compose-material3 = { module = "androidx.compose.material3:material3" }
+compose-toolingPreview = { module = "androidx.compose.ui:ui-tooling-preview" }
+compose-uiTooling = { module = "androidx.compose.ui:ui-tooling" }
+compose-viewModel = { module = "androidx.lifecycle:lifecycle-viewmodel-compose" }
+datastore = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
+kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinxSerializationCore" }
+
+[bundles]
+compose = [
+    "compose-activity",
+    "compose-material3",
+    "compose-toolingPreview",
+    "compose-viewModel"
+]
+composeDebug = [
+    "compose-uiTooling",
+]
+navigation3 = [
+    "androidx-navigation3-runtime",
+    "androidx-navigation3-ui",
+    "androidx-viewModel-navigation3",
+]
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin"}

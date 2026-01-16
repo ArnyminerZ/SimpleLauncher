@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Valkyrie.Settings">
+    <option name="iconPackDestination" value="$PROJECT_DIR$/app/src/main/java/com/arnyminerz/simplelauncher/icons" />
+    <option name="iconPackName" value="MaterialSymbols" />
+    <option name="iconPackPackage" value="com.arnyminerz.simplelauncher.icons" />
+    <option name="mode" value="IconPack" />
+    <option name="packageName" value="com.arnyminerz.simplelauncher.icons" />
+  </component>
+</project>
