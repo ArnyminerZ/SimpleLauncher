@@ -39,11 +39,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.text
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import com.arnyminerz.simplelauncher.R
 import com.arnyminerz.simplelauncher.data.AppInfo
 import com.arnyminerz.simplelauncher.icons.BatteryAndroidBolt
 import com.arnyminerz.simplelauncher.icons.BatteryAndroidFrame0
@@ -163,19 +170,19 @@ fun LauncherScreen(
                         }
                     }
                 } else {
-                    Text("Loading apps...")
+                    Text(stringResource(R.string.apps_loading))
                 }
             }
 
             ActionRow(
                 icon = MaterialSymbols.Call,
-                text = "Call",
+                text = stringResource(R.string.call),
                 color = Color(0xff26ba26),
                 onClick = onCallRequest,
             )
             ActionRow(
                 icon = MaterialSymbols.CrisisAlert,
-                text = "Emergency",
+                text = stringResource(R.string.emergency),
                 color = Color(0xffdc2b2b),
                 onClick = { /* TODO */ }
             )
@@ -186,6 +193,7 @@ fun LauncherScreen(
 @Composable
 fun BatteryIndicator(modifier: Modifier = Modifier) {
     val context = LocalContext.current
+    val resources = LocalResources.current
     val batteryManager = remember(context) {
         ContextCompat.getSystemService(context, BatteryManager::class.java)
     } ?: return
@@ -204,7 +212,14 @@ fun BatteryIndicator(modifier: Modifier = Modifier) {
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier,
+        modifier = modifier.semantics {
+            text = AnnotatedString(
+                if (isCharging)
+                    resources.getString(R.string.battery_charging, batteryLevel)
+                else
+                    resources.getString(R.string.battery_discharging, batteryLevel)
+            )
+        },
     ) {
         Icon(
             when {
