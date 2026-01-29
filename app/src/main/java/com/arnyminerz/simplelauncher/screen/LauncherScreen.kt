@@ -70,6 +70,7 @@ import com.arnyminerz.simplelauncher.icons.SignalWifi4Bar
 import com.arnyminerz.simplelauncher.icons.SignalWifiOff
 import com.arnyminerz.simplelauncher.toImageBitmap
 import com.arnyminerz.simplelauncher.ui.ActionRow
+import com.arnyminerz.simplelauncher.ui.rememberCurrentTime
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -85,19 +86,7 @@ fun LauncherScreen(
 ) {
     val appsColumns = apps?.chunked(columns)
 
-    var time by remember { mutableStateOf("") }
-    LaunchedEffect(Unit) {
-        while (true) {
-            val currentTime = SimpleDateFormat("HH:mm", Locale.getDefault())
-                .format(Date())
-
-            if (currentTime != time) {
-                time = currentTime
-            }
-
-            delay(100)
-        }
-    }
+    val time by rememberCurrentTime()
 
     Scaffold(containerColor = Color.Transparent) { paddingValues ->
         Column(
