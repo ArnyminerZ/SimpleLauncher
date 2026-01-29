@@ -68,6 +68,16 @@ fun AddressBookScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
+            Text(
+                text = "Address Book",
+                fontSize = 30.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                textAlign = TextAlign.Center
+            )
+
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
