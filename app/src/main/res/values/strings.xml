@@ -5,7 +5,23 @@
 
     <string name="call">Call</string>
     <string name="emergency">Emergency</string>
+    <string name="close">Close</string>
+    <string name="confirm">Confirm</string>
 
     <string name="battery_charging">Battery charging. Currently at %1$d %%</string>
     <string name="battery_discharging">Battery discharging. Currently at %1$d %%</string>
+
+    <string name="address_book_title">Address Book</string>
+    <string name="address_book_empty">No contacts found.</string>
+
+    <string name="settings_title">Settings</string>
+    <string name="settings_select_apps">Select apps</string>
+    <string name="settings_select_apps_info">Apps that will be displayed in the launcher.</string>
+    <string name="settings_columns_title">Number of columns</string>
+    <string name="settings_columns_info">Number of columns to show on the home screen.</string>
+    <string name="settings_columns">%1$d columns</string>
+    <string name="settings_password_title">Set Password</string>
+    <string name="settings_password_info">Password required to access the settings screen.</string>
+    <string name="settings_password">Password</string>
+    <string name="settings_password_number">Must be a number</string>
 </resources>

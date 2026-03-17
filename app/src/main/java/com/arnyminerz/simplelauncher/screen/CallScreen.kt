@@ -34,11 +34,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
+import com.arnyminerz.simplelauncher.R
 import com.arnyminerz.simplelauncher.data.AppInfo
 import com.arnyminerz.simplelauncher.data.Contact
 import com.arnyminerz.simplelauncher.icons.Call
@@ -164,14 +166,14 @@ fun CallScreen(
 
             ActionRow(
                 icon = MaterialSymbols.ContactPhone,
-                text = "Address Book",
+                text = stringResource(R.string.address_book_title),
                 color = Color(0xff4285f4),
                 onClick = onAddressBookRequest,
             )
 
             ActionRow(
                 icon = MaterialSymbols.Close,
-                text = "Close",
+                text = stringResource(R.string.close),
                 color = Color(0xffdc2b2b),
                 onClick = onBack
             )

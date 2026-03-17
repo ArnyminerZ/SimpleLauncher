@@ -30,9 +30,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.arnyminerz.simplelauncher.R
 import com.arnyminerz.simplelauncher.data.AppInfo
 import com.arnyminerz.simplelauncher.icons.ArrowBack
 import com.arnyminerz.simplelauncher.icons.ChevronRight
@@ -60,14 +62,14 @@ fun SettingsScreen(
                 navigationIcon = {
                     IconButton(onBack) { Icon(MaterialSymbols.ArrowBack, "Go Back") }
                 },
-                title = { Text("Settings") },
+                title = { Text(stringResource(R.string.settings_title)) },
             )
         }
     ) { paddingValues ->
         var showingAppsSelectionDialog by remember { mutableStateOf(false) }
         if (showingAppsSelectionDialog) {
             SettingsDialog(
-                title = "Select apps",
+                title = stringResource(R.string.settings_select_apps),
                 onDismissRequest = { showingAppsSelectionDialog = false }
             ) {
                 LazyColumn {
@@ -119,12 +121,12 @@ fun SettingsScreen(
         var showingColumnsSelectionDialog by remember { mutableStateOf(false) }
         if (showingColumnsSelectionDialog) {
             SettingsDialog(
-                title = "Select number of columns",
+                title = stringResource(R.string.settings_columns_title),
                 onDismissRequest = { showingColumnsSelectionDialog = false }
             ) {
                 for (i in 1..4) {
                     ListItem(
-                        headlineContent = { Text("$i columns") },
+                        headlineContent = { Text(stringResource(R.string.settings_columns, i)) },
                         trailingContent = {
                             if (columns == i)
                                 Icon(MaterialSymbols.ChevronRight, null)
@@ -143,7 +145,7 @@ fun SettingsScreen(
             var changedPassword by remember { mutableStateOf(password) }
 
             SettingsDialog(
-                title = "Set password",
+                title = stringResource(R.string.settings_password_title),
                 onDismissRequest = { showingPasswordDialog = false },
                 onConfirm = {
                     onPasswordChange(changedPassword)
@@ -155,8 +157,8 @@ fun SettingsScreen(
                     onValueChange = {
                         changedPassword = it.takeIf { it.toIntOrNull() != null } ?: changedPassword
                     },
-                    label = { Text("Password") },
-                    supportingText = { Text("Must be a number") },
+                    label = { Text(stringResource(R.string.settings_password)) },
+                    supportingText = { Text(stringResource(R.string.settings_password_number)) },
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
                 )
@@ -170,24 +172,24 @@ fun SettingsScreen(
         ) {
             item {
                 ListItem(
-                    headlineContent = { Text("Selected apps") },
-                    supportingContent = { Text("Apps that will be displayed in the launcher") },
+                    headlineContent = { Text(stringResource(R.string.settings_select_apps)) },
+                    supportingContent = { Text(stringResource(R.string.settings_select_apps_info)) },
                     trailingContent = { Icon(MaterialSymbols.ChevronRight, null) },
                     modifier = Modifier.clickable { showingAppsSelectionDialog = true }
                 )
             }
             item {
                 ListItem(
-                    headlineContent = { Text("Columns") },
-                    supportingContent = { Text("Number of columns in the launcher") },
+                    headlineContent = { Text(stringResource(R.string.settings_columns_title)) },
+                    supportingContent = { Text(stringResource(R.string.settings_columns_info)) },
                     trailingContent = { Text("$columns", fontSize = 16.sp) },
                     modifier = Modifier.clickable { showingColumnsSelectionDialog = true }
                 )
             }
             item {
                 ListItem(
-                    headlineContent = { Text("Password") },
-                    supportingContent = { Text("Password required to access the settings screen") },
+                    headlineContent = { Text(stringResource(R.string.settings_password_title)) },
+                    supportingContent = { Text(stringResource(R.string.settings_password_info)) },
                     modifier = Modifier.clickable { showingPasswordDialog = true }
                 )
             }
@@ -213,7 +215,7 @@ fun SettingsDialog(
         confirmButton = {
             TextButton(
                 onClick = onConfirm
-            ) { Text("Confirm") }
+            ) { Text(stringResource(R.string.confirm)) }
         }
     )
 }
