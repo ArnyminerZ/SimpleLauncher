@@ -8,6 +8,7 @@ import kotlinx.serialization.Serializable
 class AppInfoSimple(
     val appName: String,
     val packageName: String,
+    val shortcuts: List<AppShortcut> = emptyList(),
 ) {
     /**
      * Converts this [AppInfoSimple] into a full [AppInfo] object.
@@ -24,6 +25,7 @@ class AppInfoSimple(
             intent = intent,
             appIconProvider = { pm.getApplicationIcon(packageName) },
             launchIconProvider = { pm.getActivityIcon(intent) },
+            shortcuts = shortcuts,
         )
     }
 }

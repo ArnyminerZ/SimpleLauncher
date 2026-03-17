@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -17,6 +18,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -68,27 +70,48 @@ fun SettingsScreen(
                 title = "Select apps",
                 onDismissRequest = { showingAppsSelectionDialog = false }
             ) {
-                for (appInfo in installedApps) {
-                    ListItem(
-                        headlineContent = { Text(appInfo.appName) },
-                        leadingContent = {
-                            Image(
-                                appInfo.launchIconProvider().toImageBitmap(),
-                                null,
-                                Modifier.size(32.dp)
-                            )
-                        },
-                        trailingContent = {
-                            Checkbox(
-                                checked = selectedAppPackageNames.orEmpty()
-                                    .contains(appInfo.packageName),
-                                onCheckedChange = {
-                                    onToggleApp(appInfo.packageName)
+                LazyColumn {
+                    items(installedApps) { appInfo ->
+                        var toggled by remember { mutableStateOf(false) }
+                        OutlinedCard(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(8.dp)
+                                    .clickable(enabled = appInfo.shortcuts.isNotEmpty()) { toggled = !toggled }
+                            ) {
+                                Image(
+                                    appInfo.launchIconProvider().toImageBitmap(),
+                                    null,
+                                    Modifier.size(32.dp)
+                                )
+                                Column(modifier = Modifier.weight(1f).padding(horizontal = 4.dp)) {
+                                    Text(appInfo.appName)
+                                    Text(appInfo.packageName, fontSize = 12.sp)
                                 }
-                            )
-                        },
-                        modifier = Modifier.clickable { onToggleApp(appInfo.packageName) }
-                    )
+                                Checkbox(
+                                    checked = selectedAppPackageNames.orEmpty()
+                                        .contains(appInfo.packageName),
+                                    onCheckedChange = {
+                                        onToggleApp(appInfo.packageName)
+                                    }
+                                )
+                            }
+                            if (toggled) {
+                                for (shortcut in appInfo.shortcuts) {
+                                    ListItem(
+                                        headlineContent = { Text(shortcut.packageName) },
+                                        supportingContent = { Text(shortcut.id) },
+                                        modifier = Modifier.fillMaxWidth().padding(start = 32.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

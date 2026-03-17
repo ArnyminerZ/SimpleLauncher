@@ -4,11 +4,16 @@ import android.Manifest
 import android.app.Application
 import android.content.Context
 import android.content.Intent
+import android.content.pm.LauncherApps
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.os.Process
 import android.provider.ContactsContract.CommonDataKinds.Phone
+import android.util.Log
 import android.view.WindowManager.LayoutParams.FLAG_SHOW_WALLPAPER
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -22,7 +27,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.core.content.ContextCompat
+import androidx.core.content.getSystemService
 import androidx.core.net.toUri
+import androidx.core.os.UserHandleCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -31,6 +38,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
 import com.arnyminerz.simplelauncher.data.AppInfo
+import com.arnyminerz.simplelauncher.data.AppShortcut
 import com.arnyminerz.simplelauncher.data.Contact
 import com.arnyminerz.simplelauncher.nav.Destination
 import com.arnyminerz.simplelauncher.screen.AddressBookScreen
@@ -38,13 +46,11 @@ import com.arnyminerz.simplelauncher.screen.CallScreen
 import com.arnyminerz.simplelauncher.screen.LauncherScreen
 import com.arnyminerz.simplelauncher.screen.SettingsScreen
 import com.arnyminerz.simplelauncher.storage.SettingsManager
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -63,6 +69,8 @@ class LauncherActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        enableEdgeToEdge()
 
         // Show Wallpaper as background
         window.addFlags(FLAG_SHOW_WALLPAPER)
@@ -257,6 +265,35 @@ class LauncherActivity : AppCompatActivity() {
             }
         }
 
+        private fun getAppShortcuts(context: Context, packageName: String): List<AppShortcut> {
+            // Shortcuts were introduced in Android 7.1 (API 25)
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1) {
+                return emptyList()
+            }
+
+            val launcherApps = context.getSystemService<LauncherApps>() ?: return emptyList()
+            val userHandle = Process.myUserHandle()
+
+            val query = LauncherApps.ShortcutQuery().apply {
+                setPackage(packageName)
+                setQueryFlags(
+                    LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC or
+                            LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or
+                            LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED
+                )
+            }
+
+            return try {
+                // This will throw a SecurityException if your app is not the default launcher
+                val shortcuts = launcherApps.getShortcuts(query, userHandle)
+
+                shortcuts.orEmpty().map { AppShortcut(it) }
+            } catch (e: SecurityException) {
+                Log.e("ShortcutInfo", "SecurityException: App is not the default launcher", e)
+                emptyList()
+            }
+        }
+
         fun getInstalledApps(): List<AppInfo> {
             val pm = context.packageManager
             return pm.getInstalledApplications(PackageManager.GET_META_DATA)
@@ -265,12 +302,14 @@ class LauncherActivity : AppCompatActivity() {
                     val packageName = applicationInfo.packageName
                     val intent: Intent? = pm.getLaunchIntentForPackage(packageName)
                     intent ?: return@mapNotNull null
+                    val shortcuts = getAppShortcuts(context, packageName)
                     AppInfo(
                         appName = appName,
                         packageName = packageName,
                         intent = intent,
                         appIconProvider = { applicationInfo.loadIcon(pm) },
                         launchIconProvider = { pm.getActivityIcon(intent) },
+                        shortcuts = shortcuts,
                     )
                 }
         }
